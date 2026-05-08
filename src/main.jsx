@@ -231,7 +231,7 @@ function LoginScreen({ users, onLogin }) {
 }
 
 function UsersPanel({ users, setUsers }) {
-  const emptyForm = { name: '', role: 'Profissional', password: '', commissionPercent: 35, specialty: 'Manicure' };
+  const emptyForm = { name: '', email: '', role: 'Profissional', password: '', commissionPercent: 35, specialty: 'Manicure' };
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [roleFilter, setRoleFilter] = useState('Todos');
@@ -252,6 +252,7 @@ function UsersPanel({ users, setUsers }) {
     event.preventDefault();
     const normalizedForm = {
       ...form,
+      email: form.email.trim(),
       commissionPercent: form.role === 'Profissional' ? clampPercent(form.commissionPercent) : 0,
       specialty: form.role === 'Profissional' ? form.specialty : ''
     };
@@ -272,6 +273,7 @@ function UsersPanel({ users, setUsers }) {
     setEditingId(user.id);
     setForm({
       name: user.name,
+      email: user.email || '',
       role: user.role,
       password: '',
       commissionPercent: clampPercent(user.commissionPercent),
@@ -318,6 +320,19 @@ function UsersPanel({ users, setUsers }) {
               <option>Profissional</option>
               <option>Recepcao</option>
             </select>
+          </label>
+          <label>
+            E-mail
+            <input
+              value={form.email}
+              onChange={(event) => setForm({ ...form, email: event.target.value })}
+              placeholder={form.role === 'Profissional' ? 'Opcional para profissional' : 'Obrigatório para este perfil'}
+              type="email"
+              required={form.role !== 'Profissional'}
+            />
+            <small className="field-hint">
+              {form.role === 'Profissional' ? 'Profissional pode ficar sem e-mail.' : 'Obrigatório para administrador, gerente e recepção.'}
+            </small>
           </label>
           <label>
             Comissão do funcionário (%)
@@ -391,7 +406,7 @@ function UsersPanel({ users, setUsers }) {
                 <div className="avatar">{user.name[0]}</div>
                 <div>
                   <strong>{user.name}</strong>
-                  <span>{user.specialty || 'Acesso cadastrado'}</span>
+                  <span>{user.email || user.specialty || 'Acesso cadastrado'}</span>
                 </div>
                 <b>{user.role}</b>
                 <span className="commission-tag">
