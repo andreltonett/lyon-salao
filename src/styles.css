@@ -142,19 +142,6 @@ button {
   margin-top: 4px;
 }
 
-.login-hint {
-  margin-top: 18px;
-  padding: 14px;
-  border-radius: 8px;
-  background: #f9efe2;
-  display: grid;
-  gap: 4px;
-}
-
-.login-hint span {
-  color: #766b60;
-}
-
 .app-shell {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);

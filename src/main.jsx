@@ -167,8 +167,8 @@ function PageHeader({ title, detail, action }) {
 }
 
 function LoginScreen({ users, onLogin }) {
-  const [login, setLogin] = useState('admin@salao.com');
-  const [password, setPassword] = useState('123456');
+  const [login, setLogin] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
@@ -225,10 +225,6 @@ function LoginScreen({ users, onLogin }) {
           {error && <p className="form-error">{error}</p>}
           <button className="primary-button login-button" type="submit">Acessar sistema</button>
         </form>
-        <div className="login-hint">
-          <strong>Usuário inicial</strong>
-          <span>admin@salao.com / 123456</span>
-        </div>
       </section>
     </main>
   );
