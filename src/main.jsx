@@ -334,33 +334,35 @@ function UsersPanel({ users, setUsers }) {
               {form.role === 'Profissional' ? 'Profissional pode ficar sem e-mail.' : 'Obrigatório para administrador, gerente e recepção.'}
             </small>
           </label>
-          <label>
-            Comissão do funcionário (%)
-            <input
-              inputMode="numeric"
-              value={form.commissionPercent}
-              onChange={(event) => setForm({ ...form, commissionPercent: event.target.value })}
-              disabled={form.role !== 'Profissional'}
-              required={form.role === 'Profissional'}
-            />
-            <small className="field-hint">
-              Salão fica com {100 - clampPercent(form.role === 'Profissional' ? form.commissionPercent : 0)}%
-            </small>
-          </label>
-          <label>
-            O que faz
-            <select
-              value={form.specialty}
-              onChange={(event) => setForm({ ...form, specialty: event.target.value })}
-              disabled={form.role !== 'Profissional'}
-              required={form.role === 'Profissional'}
-            >
-              <option>Manicure</option>
-              <option>Cabeleireiro</option>
-              <option>Cabeleireira</option>
-              <option>Maquiagem</option>
-            </select>
-          </label>
+          {form.role === 'Profissional' && (
+            <>
+              <label>
+                Comissão do funcionário (%)
+                <input
+                  inputMode="numeric"
+                  value={form.commissionPercent}
+                  onChange={(event) => setForm({ ...form, commissionPercent: event.target.value })}
+                  required
+                />
+                <small className="field-hint">
+                  Salão fica com {100 - clampPercent(form.commissionPercent)}%
+                </small>
+              </label>
+              <label>
+                O que faz
+                <select
+                  value={form.specialty}
+                  onChange={(event) => setForm({ ...form, specialty: event.target.value })}
+                  required
+                >
+                  <option>Manicure</option>
+                  <option>Cabeleireiro</option>
+                  <option>Cabeleireira</option>
+                  <option>Maquiagem</option>
+                </select>
+              </label>
+            </>
+          )}
           <label>
             Senha
             <input
