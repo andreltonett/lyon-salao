@@ -690,8 +690,17 @@ function ClientesPage({ clients, setClients }) {
   );
 }
 
-function CaixaPage({ appointments, users, cashRegisters, setCashRegisters, loggedUser }) {
+function CaixaPage({ appointments, setAppointments, clients, users, cashRegisters, setCashRegisters, loggedUser }) {
   const today = getToday();
+  const professionals = users.filter((user) => user.role === 'Profissional');
+  const emptyServiceForm = {
+    ficha: '',
+    client: '',
+    procedure: '',
+    value: '',
+    pro: professionals[0]?.name || ''
+  };
+  const [serviceForm, setServiceForm] = useState(emptyServiceForm);
   const openRegister = cashRegisters.find((register) => register.status === 'Aberto');
   const todayRegister = cashRegisters.find((register) => register.date === today && register.status === 'Aberto');
   const hasOldOpenRegister = openRegister && openRegister.date !== today;
@@ -734,6 +743,27 @@ function CaixaPage({ appointments, users, cashRegisters, setCashRegisters, logge
 
   function handleDeleteCash(registerId) {
     saveCashRegisters(cashRegisters.filter((register) => register.id !== registerId));
+  }
+
+  function handleRegisterService(event) {
+    event.preventDefault();
+    if (!openRegister) return;
+
+    const now = new Date();
+    const time = now.toTimeString().slice(0, 5);
+
+    saveCollection('salonflow-appointments', [
+      ...appointments,
+      {
+        ...serviceForm,
+        id: Date.now(),
+        date: activeDate,
+        time,
+        status: 'Confirmado',
+        value: Number(serviceForm.value || 0)
+      }
+    ], setAppointments);
+    setServiceForm({ ...emptyServiceForm, pro: serviceForm.pro });
   }
 
   return (
@@ -830,6 +860,41 @@ function CaixaPage({ appointments, users, cashRegisters, setCashRegisters, logge
             </div>
             <CalendarDays size={20} />
           </div>
+          {openRegister ? (
+            <form className="cash-service-form" onSubmit={handleRegisterService}>
+              <label>
+                Ficha
+                <input value={serviceForm.ficha} onChange={(event) => setServiceForm({ ...serviceForm, ficha: event.target.value })} required />
+              </label>
+              <label>
+                Cliente
+                <input list="cash-client-options" value={serviceForm.client} onChange={(event) => setServiceForm({ ...serviceForm, client: event.target.value })} required />
+                <datalist id="cash-client-options">
+                  {clients.map((client) => <option key={client.id} value={client.name} />)}
+                </datalist>
+              </label>
+              <label>
+                Serviço
+                <input value={serviceForm.procedure} onChange={(event) => setServiceForm({ ...serviceForm, procedure: event.target.value })} required />
+              </label>
+              <label>
+                Profissional
+                <select value={serviceForm.pro} onChange={(event) => setServiceForm({ ...serviceForm, pro: event.target.value })} required>
+                  <option value="">Selecione</option>
+                  {professionals.map((professional) => (
+                    <option key={professional.id} value={professional.name}>{professional.name}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Valor
+                <input inputMode="numeric" value={serviceForm.value} onChange={(event) => setServiceForm({ ...serviceForm, value: event.target.value })} required />
+              </label>
+              <button className="primary-button" type="submit">Registrar serviço</button>
+            </form>
+          ) : (
+            <EmptyState title="Caixa fechado" text="Abra o caixa para registrar serviços do dia." />
+          )}
           <div className="cash-services">
             {dayServices.length > 0 ? dayServices.map((service) => (
               <article className="cash-service-row" key={service.id}>
@@ -1107,6 +1172,8 @@ function App() {
         {activePage === 'caixa' && (
           <CaixaPage
             appointments={appointments}
+            setAppointments={setAppointments}
+            clients={clients}
             users={users}
             cashRegisters={cashRegisters}
             setCashRegisters={setCashRegisters}
