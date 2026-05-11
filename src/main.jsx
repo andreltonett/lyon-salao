@@ -452,7 +452,6 @@ function AgendaPage({ appointments, clients, users, setAppointments }) {
   const dayRevenue = todaysAppointments.reduce((sum, item) => sum + Number(item.value || 0), 0);
   const dayCommission = todaysAppointments.reduce((sum, item) => sum + getAppointmentCommission(users, item), 0);
   const confirmed = todaysAppointments.filter((item) => item.status === 'Confirmado').length;
-  const recurrentClients = clients.filter((client) => Number(client.visits || 0) > 1).length;
   const occupancy = Math.min(Math.round((todaysAppointments.length / 10) * 100), 100);
 
   function handleSubmit(event) {
@@ -479,7 +478,7 @@ function AgendaPage({ appointments, clients, users, setAppointments }) {
         <StatCard icon={CalendarDays} label="Atendimentos hoje" value={todaysAppointments.length} detail="Agendamentos para hoje" />
         <StatCard icon={CreditCard} label="Faturamento do dia" value={formatMoney(dayRevenue)} detail="Procedimentos agendados" />
         <StatCard icon={MessageCircle} label="Confirmações" value={`${todaysAppointments.length ? Math.round((confirmed / todaysAppointments.length) * 100) : 0}%`} detail="Horários confirmados" />
-        <StatCard icon={Star} label="Clientes recorrentes" value={recurrentClients} detail="Clientes com mais de uma visita" />
+        <StatCard icon={Star} label="Clientes cadastrados" value={clients.length} detail="Base de clientes" />
       </section>
 
       <section className="work-grid">
@@ -589,17 +588,16 @@ function AgendaPage({ appointments, clients, users, setAppointments }) {
 }
 
 function ClientesPage({ clients, setClients }) {
-  const emptyForm = { name: '', phone: '', last: '', visits: 1 };
+  const emptyForm = { name: '', phone: '' };
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const formRef = useRef(null);
 
   function handleSubmit(event) {
     event.preventDefault();
-    const normalizedForm = { ...form, visits: Number(form.visits || 0) };
     const nextClients = editingId
-      ? clients.map((client) => (client.id === editingId ? { ...client, ...normalizedForm } : client))
-      : [...clients, { ...normalizedForm, id: Date.now() }];
+      ? clients.map((client) => (client.id === editingId ? { ...client, ...form } : client))
+      : [...clients, { ...form, id: Date.now() }];
 
     saveCollection('salonflow-clients', nextClients, setClients);
     setForm(emptyForm);
@@ -608,7 +606,7 @@ function ClientesPage({ clients, setClients }) {
 
   function handleEdit(client) {
     setEditingId(client.id);
-    setForm({ name: client.name, phone: client.phone, last: client.last, visits: client.visits });
+    setForm({ name: client.name, phone: client.phone || '' });
     window.setTimeout(() => focusForm(formRef), 0);
   }
 
@@ -635,15 +633,7 @@ function ClientesPage({ clients, setClients }) {
           </label>
           <label>
             Telefone
-            <input value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} required />
-          </label>
-          <label>
-            Último atendimento
-            <input value={form.last} onChange={(event) => setForm({ ...form, last: event.target.value })} />
-          </label>
-          <label>
-            Visitas
-            <input inputMode="numeric" value={form.visits} onChange={(event) => setForm({ ...form, visits: event.target.value })} />
+            <input value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} />
           </label>
           <button className="primary-button" type="submit">{editingId ? 'Salvar cliente' : 'Criar cliente'}</button>
           {editingId && (
@@ -667,10 +657,8 @@ function ClientesPage({ clients, setClients }) {
                 <div className="avatar">{client.name[0]}</div>
                 <div>
                   <strong>{client.name}</strong>
-                  <span>{client.phone}</span>
+                  <span>{client.phone || 'Sem telefone'}</span>
                 </div>
-                <span>{client.last || 'Sem atendimento'}</span>
-                <b>{client.visits} visitas</b>
                 <div className="row-actions">
                   <button className="icon-button" aria-label={`Editar ${client.name}`} onClick={() => handleEdit(client)}>
                     <Edit3 size={17} />

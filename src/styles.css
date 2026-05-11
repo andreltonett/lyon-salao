@@ -637,7 +637,7 @@ h2 {
 }
 
 .person-row.editable-row {
-  grid-template-columns: 44px minmax(130px, 1fr) minmax(100px, .8fr) auto 88px;
+  grid-template-columns: 44px minmax(130px, 1fr) 88px;
 }
 
 .avatar {
