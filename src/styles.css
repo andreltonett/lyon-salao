@@ -483,7 +483,8 @@ h2 {
 .table-list,
 .users-list,
 .cash-status,
-.cash-history {
+.cash-history,
+.cash-services {
   display: grid;
   gap: 10px;
 }
@@ -720,6 +721,39 @@ h2 {
   color: #215f64;
 }
 
+.cash-services-panel {
+  grid-column: 1 / -1;
+}
+
+.cash-service-row {
+  min-height: 68px;
+  display: grid;
+  grid-template-columns: 86px minmax(170px, 1fr) minmax(130px, .7fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f9efe2;
+}
+
+.cash-service-row strong,
+.cash-service-row span,
+.service-ficha strong,
+.service-ficha span {
+  display: block;
+}
+
+.cash-service-row span,
+.service-ficha span {
+  color: #766b60;
+  margin-top: 4px;
+}
+
+.cash-service-row b,
+.service-ficha strong {
+  color: #215f64;
+}
+
 .settings-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -908,6 +942,7 @@ h2 {
 
   .cash-alert,
   .cash-row,
+  .cash-service-row,
   .person-row,
   .person-row.editable-row,
   .user-row {
@@ -920,6 +955,9 @@ h2 {
 
   .cash-alert span,
   .cash-alert button,
+  .cash-service-row > div:not(.service-ficha),
+  .cash-service-row > span,
+  .cash-service-row > b,
   .person-row > span,
   .person-row > b,
   .person-row > .row-actions,

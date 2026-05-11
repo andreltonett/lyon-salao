@@ -437,6 +437,7 @@ function AgendaPage({ appointments, clients, users, setAppointments }) {
   const formRef = useRef(null);
   const professionals = users.filter((user) => user.role === 'Profissional');
   const emptyForm = {
+    ficha: '',
     client: clients[0]?.name || '',
     procedure: '',
     value: '',
@@ -495,7 +496,7 @@ function AgendaPage({ appointments, clients, users, setAppointments }) {
                 <div className="time">{item.time}</div>
                 <div className="appointment-main">
                   <strong>{item.client}</strong>
-                  <span>{item.date} - {item.procedure || item.service}</span>
+                  <span>{item.ficha ? `Ficha ${item.ficha} - ` : ''}{item.date} - {item.procedure || item.service}</span>
                 </div>
                 <div className="pro">{item.pro}</div>
                 <div className={`status ${item.status === 'Confirmado' ? 'ok' : 'wait'}`}>{item.status}</div>
@@ -528,6 +529,7 @@ function AgendaPage({ appointments, clients, users, setAppointments }) {
             <p><Check size={16} />{formatMoney(dayRevenue - dayCommission)} fica para o salão</p>
           </div>
         </div>
+
       </section>
 
       <section className="panel quick-form-panel">
@@ -536,6 +538,10 @@ function AgendaPage({ appointments, clients, users, setAppointments }) {
           <CalendarDays size={20} />
         </div>
         <form className="quick-form" ref={formRef} onSubmit={handleSubmit}>
+          <label>
+            Ficha
+            <input value={form.ficha} onChange={(event) => setForm({ ...form, ficha: event.target.value })} required />
+          </label>
           <label>
             Cliente
             <select value={form.client} onChange={(event) => setForm({ ...form, client: event.target.value })} required>
@@ -691,6 +697,9 @@ function CaixaPage({ appointments, users, cashRegisters, setCashRegisters, logge
   const hasOldOpenRegister = openRegister && openRegister.date !== today;
   const activeDate = openRegister?.date || today;
   const summary = getCashSummary(appointments, users, activeDate);
+  const dayServices = appointments
+    .filter((item) => item.date === activeDate)
+    .sort((firstItem, secondItem) => firstItem.time.localeCompare(secondItem.time));
   const history = [...cashRegisters].sort((firstRegister, secondRegister) => (
     secondRegister.date.localeCompare(firstRegister.date) || secondRegister.id - firstRegister.id
   ));
@@ -809,6 +818,34 @@ function CaixaPage({ appointments, users, cashRegisters, setCashRegisters, logge
               );
             }) : (
               <EmptyState title="Nenhum caixa registrado" text="Os caixas abertos e fechados aparecem aqui." />
+            )}
+          </div>
+        </div>
+
+        <div className="panel cash-services-panel">
+          <div className="panel-header">
+            <div>
+              <span className="eyebrow">Serviços</span>
+              <h2>Registros dos funcionários</h2>
+            </div>
+            <CalendarDays size={20} />
+          </div>
+          <div className="cash-services">
+            {dayServices.length > 0 ? dayServices.map((service) => (
+              <article className="cash-service-row" key={service.id}>
+                <div className="service-ficha">
+                  <span>Ficha</span>
+                  <strong>{service.ficha || '-'}</strong>
+                </div>
+                <div>
+                  <strong>{service.client}</strong>
+                  <span>{service.procedure || service.service}</span>
+                </div>
+                <span>{service.pro}</span>
+                <b>{formatMoney(service.value)}</b>
+              </article>
+            )) : (
+              <EmptyState title="Nenhum serviço registrado" text="Os serviços agendados para a data do caixa aparecem aqui." />
             )}
           </div>
         </div>
